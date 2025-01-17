@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Splitwise</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 600px; margin: auto; }
+        .user-list, .expense-list { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simple Splitwise</h1>
+
+        <!-- Add User -->
+        <form id="addUserForm">
+            <h3>Add User</h3>
+            <input type="text" id="userName" placeholder="Enter user name" required>
+            <button type="submit">Add User</button>
+        </form>
+        <div class="user-list">
+            <h3>Users</h3>
+            <ul id="userList"></ul>
+        </div>
+
+        <!-- Add Expense -->
+        <form id="addExpenseForm">
+            <h3>Add Expense</h3>
+            <input type="text" id="expenseDescription" placeholder="Description" required>
+            <input type="number" id="expenseAmount" placeholder="Amount" required>
+            <input type="number" id="expensePaidBy" placeholder="Paid by User ID" required>
+            <input type="text" id="expenseSplitBetween" placeholder="Split between User IDs (comma-separated)" required>
+            <button type="submit">Add Expense</button>
+        </form>
+        <div class="expense-list">
+            <h3>Balances</h3>
+            <button id="viewBalances">View Balances</button>
+            <ul id="balanceList"></ul>
+        </div>
+    </div>
+
+    <script>
+        // Add User
+        document.getElementById('addUserForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const userName = document.getElementById('userName').value;
+            const response = await fetch('/add_user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `name=${userName}`
+            });
+            const result = await response.json();
+            alert(result.status);
+            location.reload();
+        });
+
+        // View Balances
+        document.getElementById('viewBalances').addEventListener('click', async function() {
+            const response = await fetch('/balances');
+            const balances = await response.json();
+            const balanceList = document.getElementById('balanceList');
+            balanceList.innerHTML = '';
+            for (const [name, balance] of Object.entries(balances)) {
+                const li = document.createElement('li');
+                li.textContent = `${name}: $${balance.toFixed(2)}`;
+                balanceList.appendChild(li);
+            }
+        });
+    </script>
+</body>
+</html>
